@@ -1,0 +1,654 @@
+MTK与高通的异同
+
+同：
+一、下载和提交代码
+1、下载代码：git clone ssh://用户名@192.168.19.225:29418/MSM8916（git clone ssh://用户名@192.168.19.225:29418/MT6752KK2_MP13）
+2. 切换分支：git checkout -b WT_shanghai_MSM8916 origin/WT_shanghai_MSM8916 
+3. 提交： git push origin HEAD:refs/for/WT_shanghai_MSM8916
+
+二、查询命令
+find ./ -name *.xml | xargs grep -nr "要查询的字符串"
+find -type f -name "*.mk" | xargs grep "QuickSearchBox" 
+
+三、git的使用记录
+（一）、
+	(1)Git下载提交代码
+	生成pub_key，需将其拷贝到Gerrit的settings中：
+	ssh-keygen -t rsa -C "某某"  -f ~/.sshenbo
+
+  (2)取代码：
+	1. git clone ssh://username@192.168.80.90:29418/msm7625a_r4/msm7625a_android_r4.git
+	2. cd msm7625a_android_r4
+		 此时运行git branch，你会发现 *master，说明当前在主分支上
+
+	(3)切分支
+  1. git checkout -b temp
+     此命令会创建一个temp分支，并将当前工作分支切换到temp分支，此时运行git branch，你会发现 master
+     																																												* temp
+		说明已切换到temp分支，“temp”是自己分支的名字，可以随便命名
+
+
+（二）、然后就可以在temp分支上进行开发工作，当开发完成后需要提交代码时，可按下面操作：
+
+	1. temp: git status 查看temp分支上所有的修改的文件
+	   如果有untrack代码需要加进来 ，则git add 
+	   如果有修改了的但不想提交的代码 ，则先 git checkout 
+	   如果有删掉的代码，则需要 git rm 掉，保留你想要提交的代码
+
+  2. temp: git commit -a/m 将所有的修改的文件全部提交，中途需要添加comment；
+   若有新添加的文件，请使用git add添加，然后再使用commit提交
+   temp: git add filepath 把所有新添加的文件全部add
+
+	3. git checkout master 切换到master分支
+
+	4. master: git pull --rebase  将master分支更新到最新
+
+	5. master: git pull . temp 将temp的修改pull到master分支
+
+	6. master: git push origin HEAD:refs/for/master
+
+	OK, 大功告成，为了安全，还是去http://192.168.80.90/gerrit/#/admin/projects/检查下自己的修改是否已添加到服务器上
+
+
+	（三）、其他git命令
+	git log 查看commit记录
+	  git reset --hard <commit_id> 还原之前的commit --hard
+
+	更新冲突 
+	git stash  先把自己修改的放到回收站
+	git pull --rebase;
+	git stash pop   把放到回收站的再拿回来
+
+	git commit -m "commit log message"             //提交到本地仓库 ()
+	git push origin HEAD:refs/for/master            //提交到远程仓库 (注：master是所在分支)
+
+	git checkout temp//跳转到temp分支
+	git branch//查看当前处于temp分支还是master
+	git status//查看修改的文件
+	git reset --hard//销毁自己的修改
+	git checkout file-name 恢复某个已修改的文件（撤销未提交的修改）：
+
+
+其他:
+
+    根据–-soft –-mixed –-hard，会对working tree和index和HEAD进行重置:
+    git reset -–mixed：此为默认方式，不带任何参数的git reset，即时这种方式，它回退到某个版本，只保留源码，回退commit和index信息
+    git reset -–soft：回退到某个版本，只回退了commit的信息，不会恢复到index file一级。如果还要提交，直接commit即可
+    git reset -–hard：彻底回退到某个版本，本地的源码也会变为上一个版本的内容(但是新添加的内容不会变)
+
+
+删除分支
+仅当欲删除的分支已合并到当前分支时，删除本地分支，强制删除用-d
+ git branch -d <branch to delete>
+
+
+回退版本：
+在commit前，创建分支，将主线的代码在分支上进行备份，用git reset --hard commit-id回退到上一版本，再从分支将代码合并到主线。
+
+git reset HEAD^ // 回退到上一版本
+git commit --amend //利用change id重新修改commit。
+
+
+android4.1的开发请在jb-master分支上进行，步骤如下：
+1）更新amss和android的代码：git pull --rebase
+2）创建本地的jb-mater分支用于跟踪服务器上的jb-master分支：git branch jb-master origin/jb-master
+3）检出jb-master分支开发：git checkout jb-master
+4）把更改推送到服务器评审：git push origin jb-master:refs/for/jb-master
+
+
+//=====================================add by myself=================
+1、git checkout .
+这条命令把当前目录所有修改的文件 从HEAD中签出并且把它恢复成未修改时的样子.
+注意：在使用git checkout 时，如果其对应的文件被修改过，那么该修改会被覆盖掉。
+
+2、git checkout 与 git branch 的区别：
+git checkout -b -newbranch  [<start_point>]
+这样用可以创建新的分支并切换到新分支上去，b代表branch的意思，newbranch 是新分支的名称，如果没有指定提交点（start_point），默认从HEAD指向的提交创建分支。
+
+git branch <branchname> [<start_point>]
+创建新的分支，但是不会切换到新建的分支上，如果没有指定start_point，默认从HEAD指向的提交创建分支。
+
+3、ctrl+shift+T   在原来的窗口上另外新建一个窗口
+
+4、代码提交
+ 步骤： 1、下载一份新的代码，不改不编译
+	2、
+5、在切分支之前不能改动  如改了就git stash 把改了的扔到垃圾桶
+
+6、从linux复制文本到windows
+gedit某个文件 就弹出窗口 我就这样复制 放到windows里就可以粘贴了
+就是相当于 你双击文件 弹出窗口 就能直接复制
+那个窗口是在gedit下的
+
+7、Gerrit
+git clone ssh://用户名@192.168.19.225:29418/test  下载
+
+
+git status                                         查看修改  {1}
+git add + path                                     add修改
+git commit -m ""                                   commit
+git push origin HEAD:refs/for/master               提交代码
+git push origin HEAD:refs/for/wingt_KK2.MP13.P18
+
+
+服务器上 My --> Changes --> Need Code-Review  (chenbo)
+
+如果取消提交则：
+服务器上  Abandoned Changes
+
+本地仓库上  git reset --soft + 你的节点的上一个节点（commit节点） 【不会清除你修改的代码  --hard会清除你修改的代码】
+
+git diff  查看修改后的文件与版本库中的文件的差异
+
+git status  
+
+git rm + 要删除的文件
+
+git status
+
+git log
+
+git config --global core.editor vim  查看提交过的  【git默认编辑器设置】
+
+git commit --amend  已经提交过 就要amend
+
+最后git push 
+
+
+chenbo:
+【你再查看你的修改则还会有你刚才提交又放弃的修改  git status  这个时候是处于add状态
+
+然后 git reset + path  再 git status 就回到{1}状态
+
+然后再 git diff + path  会看到你代码改了什么，添加了什么】
+
+
+生成key:cd
+cp -r ~/.ssh ~/.ssh_bak
+
+rm -rf ~/.ssh
+
+ssh-keygen -t rsa -C "caoyan@wingtech.com"
+
+cat ~/.ssh/id_rsa.pub
+
+
+大家在自己环境中把commit-msg脚本下载到 /usr/share/git-core/templates/hooks ，以后就不用手动添加commit-msg脚本了：
+
+scp -P 29418 -p 192.168.19.225:/hooks/commit-msg /usr/share/git-core/templates/hooks 
+chmod +x /usr/share/git-core/templates/hooks/commit-msgs
+
+ 
+
+    代码库已经创建好，大家可以下载：
+
+    git clone ssh://用户名@192.168.19.225:29418/MT6752KK2
+
+
+    checkout分支开发：
+
+    git checkout -b wingt_KK2.MP13.P18 origin/wingt_KK2.MP13.P18
+
+    
+
+    推送代码到分支wingt_KK2.MP13.P18
+
+    git push origin refs/for/wingt_KK2.MP13.P18
+
+
+（四）、git查看commit的内容
+     在push之前有时候会不放心是不是忘记加某些文件，或者是不是多删了个什么东西，这时候希望能够看看上次commit都做了些什么。
+
+一开始想到的是用git diff，但是git diff用于当前修改尚未commit的时候较为方便，一旦commit后，需要指定上次节点的名称（一个hash值），不方便。这种时候用gitlog更合适，因为commit的内容会以log来记录。
+
+下面记录几个常用的情境以及对应的命令。
+
+仅仅想看最近谁有提交，以及提交的描述
+对应命令 git log
+显示Sample
+
+commit6305aa81a265f9316b606d3564521c43f0d6c9a3 
+Author:XXX 
+Date:   Thu Nov 3 11:38:15 2011 +0800
+    fillauthor information in the head of files and format some code
+commit8e8a4a96e134dab8f045937efee35bd710006946 
+Author:XXX 
+Date:   Thu Nov 3 04:05:34 2011 +0800
+    usermanagement is mostly complete
+    details: 
+   add support for account disable/enable 
+   rewrite most related views to suit the above need 
+   provide two decorators for access control (see README) 
+   fixed many errors in Milestone 1
+commit2870cd564371d8ad043d0da426a5770d36412421 
+Author:XXX 
+Date:   Mon Oct 17 20:19:04 2011 -0400
+    fixthe bug of get_ori_url_from_shorturl().
+commitb6cdd881a19ecaff838d5825c3a6b7058fdd498a 
+Author:XXX 
+Date:   Mon Oct 17 20:17:37 2011 -0400
+    fixthe bug of get_article_from_short_url.
+
+仅仅想看最后一次的提交
+对应命令参数git log -n 1
+显示Sample
+commit6305aa81a265f9316b606d3564521c43f0d6c9a3 
+Author: XXX 
+Date:Thu Nov 3 11:38:15 2011 +0800
+fillauthor information in the head of files and format some code
+
+想看到最近一次提交所有更改过的文件
+对应命令 git log -n 1 --stat
+显示Sample
+
+commit6305aa81a265f9316b606d3564521c43f0d6c9a3 
+Author:XXX 
+Date:   Thu Nov 3 11:38:15 2011 +0800
+    fillauthor information in the head of files and format some code
+Site/accounts/decorators.py                       |    2+- 
+Site/accounts/forms.py                            |    1+ 
+Site/accounts/models.py                           |    1+ 
+Site/accounts/readme                              |    3++- 
+Site/accounts/templates/account_activate.html     |    1+ 
+Site/accounts/templates/account_disabled.html     |    1 + 
+…
+…
+28files changed, 37 insertions(+), 8 deletions(-)
+
+
+想看到最近一次提交所有更改的细节
+对应命令 git log -n 1 -p
+显示Sample
+
+commit6305aa81a265f9316b606d3564521c43f0d6c9a3 
+Author:XXX 
+Date:   Thu Nov 3 11:38:15 2011 +0800
+    fillauthor information in the head of files and format some code
+diff--git a/Site/accounts/decorators.pyb/Site/accounts/decorators.py 
+index 22522bc..a6bb440100755 
+--- a/Site/accounts/decorators.py 
++++b/Site/accounts/decorators.py 
+@@ -1,9 +1,9@@ 
+#!/usr/bin/env python 
+# -*- coding: utf-8-*- 
++# author: Rex Nov. 3, 2011 
+from functoolsimport wraps 
+from django.core.urlresolvers importreverse 
+from django.http import HttpResponseRedirect 
+-fromdjango.utils.decorators import available_attrs 
+fromSite.accounts.models import UserProfile
+deflogin_required(view_func): 
+diff --gita/Site/accounts/forms.py b/Site/accounts/forms.py 
+index016710b..778d92a 100755 
+--- a/Site/accounts/forms.py 
++++b/Site/accounts/forms.py 
+@@ -1,5 +1,6 @@ 
+#!/usr/bin/envpython 
+# -*- coding: utf-8 -*- 
++# author: Rex Nov.3, 201
+…
+…
+
+我想知道commit 8c1ecac88263e8c3d713feb19b10ec9602b9577f到底做了什么改动，现在我在目录树的根下面，所以我知道上一次commit，所以只要 
+Java代码  收藏代码
+git show 08b9212fb3c79189c102abcf03fefbf0eeda4db1 
+在这个文件的路径下：git log + 文件名        Ctrl + Z查看全部
+
+
+四、AnDroid目录下文件列表如下：
+	文件或目录名 说明
+	bionic      c api库（.c/.h/）
+	build       编译所需的makefile文件（.mk文件）
+	dalvik      Java虚拟机代码
+	hardware    HAL层代码
+	libcore     某些模块的核心库代码
+	ndk Native development kit，ndk开发包，包含开发jni所需的一些头文件，编译makefile及脚本，工具等
+	packages    android应用程序软件包代码
+	sdk Android sdk开发包源码，编译环境，工具等
+	vendor      三方应用集成的地方
+	bootable    Android的Bootloader，即运行于AP上（Application Processor）
+	cts         用于测试android平台标准性的测试包
+	development 辅助开发包
+	external    第三方提供的应用程序或库
+	frameworks  Android的framework层代码，包括java层和native层。
+	kernel      Linux内核
+	prebuilt    编译工具
+	system      一些系统程序、so库以及工具，如adb，liblog，init等
+	Makefile    编译android的主入口makefile文件
+
+	2.2 Android编译后的文件
+	Android编译后，会有多个image文件被生成，本章主要介绍这些文件的作用。
+	 Boot.img
+	 System.img      是主要文件系统的映像，它包含了整个系统，android 的framework，application 等等，会被挂接到 "/"上，包含了系统中所有的二进制文件
+	    								#system.img是out/target.product/generic/目录下system目录的一个映射，类似与根文件系统的映像，放着android的应用程序、配置文件和字体等。
+	 Recovery.img
+	 Splash.img
+	 Userdate.img    是数据内容映像，将会被挂接到 /data 下，包含了所有应用相关的配置文件，以及用户相关的数据 。
+	 Appsboot.img、appsboothd.img
+	 Amss.img、amsshd.img
+	 NPRG7627.hex
+	 oemsbl.mbn、oemsblhd.mbn
+	 qcsbl.mbn、qcsblhd_cfgdata.mbn
+	 partition.mbn
+	
+	flash分区表示例：
+	Section Start - end Address Size (KB)
+	MIBIB 0x00000000 1280
+	SIM_SECURE 0x00140000 512
+	QCSBL 0x001C0000 384
+	OEMSBL1 0x00220000 768
+	OEMSBL2 0x002E000 768
+	AMSS 0x003A0000 22528
+	EFS2 0x019A0000 8192
+	APPSBL 0x021A0000 384
+	FOTA/CACHE 0x02200000 60672/60416
+	BOOT 0x000005d40000-0x000006280000 5376
+	SYSTEM 0x000006280000-0x00000f180000 146432
+	USERDATA 0x00000f180000-0x000019680000 168960
+	RECOVERY 0x000019680000-0x000019d80000 7168
+	FLEX 0x000019d80000-0x00001fc80000 97280
+	Splash 0x00001fc80000-0x00001fe00000 1536
+	MISC 0x00001fe00000-0x00001ff00000 1024
+	KPANIC 0x00001ff00000-0x000020000000 1024
+	
+五、查看权限  ll
+          ls -al
+
+	修改权限: （进到要修改权限的文件的路径）
+	sudo chmod 777 test.java
+
+
+	如果有N多个文件，或者文件夹，如何批量修改:
+																			使用chmod -R 777  [FolderName]（中括号里是你的文件夹名，实际输入不包括中括号）。这样这个文件夹，及其文件夹中的所有文件就都变成可读写、可执行的了
+
+六、Linux中如何使用命令修改文件所属用户组？  
+先来了解一下文件属性，
+在shell环境里输入：ls -l 可以查看当前目录文件。如：
+drwxr-xr-x 2 nsf users 1024 12-10 17:37 下载文件备份
+分别对应的是：
+文件属性 连接数 文件拥有者 所属群组 文件大小 文件修改时间 文件名
+这里r是可读，w可写,x 可执行，其中文件属性分为四段，---- --- --- 10个位置
+例如：
+　　d 　 rwx 　 r-x　 r-x 
+第一个字符指定了文件类型。在通常意义上，一个目录也是一个文件。如果第一个字符是横线，表示是一个非目录的文件。如果是d，表示是一个目录。
+第二段是文件拥有者的属性，
+第三段是文件所属群组的属性，
+第四段是对于其它用户的属性，
+如上面文件夹“下载文件备份” 的访问权限，表示文件夹“下载文件备份” 是一个目录文件；文件夹“下载文件备份” 的属主有读写可执行权限；与文件夹“下载文件备份” 属主同组的用户只有读和可执行权限；其他用户也有读和可执行权限。
+确定了一个文件的访问权限后，用户可以利用Linux系统提供的chmod命令来重新设定不同的访问权限。也可以利用chown命令来更改某个文件或目录的所有者。利用chgrp命令来更改某个文件或目录的用户组。
+chmod 命令
+　　功能：chmod命令是非常重要的，用于改变文件或目录的访问权限.用户用它控制文件或目录的访问权限.
+　　语法：该命令有两种用法。一种是包含字母和操作符表达式的文字设定法；另一种是包含数字的数字设定法。
+　　1. 文字设定法
+　　chmod [who] [+ | - | =] [mode] 文件名?
+　　参数：
+　　操作对象who可是下述字母中的任一个或者它们的组合：
+　　u 表示“用户（user）”，即文件或目录的所有者。
+　　g 表示“同组（group）用户”，即与文件属主有相同组ID的所有用户。
+　　o 表示“其他（others）用户”。
+　　a 表示“所有（all）用户”。它是系统默认值。
+　　操作符号可以是：
+　　+ 添加某个权限。
+　　- 取消某个权限。
+　　= 赋予给定权限并取消其他所有权限（如果有的话）。
+
+　　设置mode所表示的权限可用下述字母的任意组合：
+　　r 可读。
+　　w 可写。
+　　x 可执行。
+　　X 只有目标文件对某些用户是可执行的或该目标文件是目录时才追加x 属性。
+　　s 在文件执行时把进程的属主或组ID置为该文件的文件属主。方式“u＋s”设置文件的用         户ID位，“g＋s”设置组ID位。
+　　t 保存程序的文本到交换设备上。
+　　u 与文件属主拥有一样的权限。
+　　g 与和文件属主同组的用户拥有一样的权限。
+　　o 与其他用户拥有一样的权限。
+　　文件名：以空格分开的要改变权限的文件列表，支持通配符。
+　　在一个命令行中可给出多个权限方式，其间用逗号隔开。例如：chmod g+r，o+r example
+　　使同组和其他用户对文件example 有读权限。
+chgrp命令
+　　功能：改变文件或目录所属的组。
+　　语法：chgrp [选项] group filename?
+　　该命令改变指定指定文件所属的用户组。其中group可以是用户组ID，也可以是/etc/group文件中用户组的组名。文件名是以空格分开的要改变属组的文件列表，支持通配符。如果用户不是该文件的属主或超级用户，则不能改变该文件的组。
+　　参数：
+　　- R 递归式地改变指定目录及其下的所有子目录和文件的属组。
+　　例1：$ chgrp - R book /opt/local /book
+　　改变/opt/local /book/及其子目录下的所有文件的属组为book。
+chown 命令
+　　功能：更改某个文件或目录的属主和属组。这个命令也很常用。例如root用户把自己的一个文件拷贝给用户xu，为了让用户xu能够存取这个文件，root用户应该把这个文件的属主设为xu，否则，用户xu无法存取这个文件。
+　　语法：chown [选项] 用户或组 文件
+　　说明：chown将指定文件的拥有者改为指定的用户或组。用户可以是用户名或用户ID。组可以是组名或组ID。文件是以空格分开的要改变权限的文件列表，支持通配符。
+　　参数：
+　　- R 递归式地改变指定目录及其下的所有子目录和文件的拥有者。
+　　- v 显示chown命令所做的工作。
+　　例1：把文件shiyan.c的所有者改为wang。
+　　$ chown wang shiyan.c
+　　例2：把目录/his及其下的所有文件和子目录的属主改成wang，属组改成users。
+　　$ chown - R wang.users /his
+
+七、抓取log的方式：
+	1、adb logcat -b system/events/radios/main -v time > path   把log写到path
+		main/system log的查询关键字是  fatal、exception
+		events log的查询关键字是  crash
+
+b、如何抓log
+
+1保证手机有t卡
+
+2 t卡根目录:\mtklog\mdlog\下放入catcher_filter.bin文件
+
+2 *#7548135*#进入工程模式--》点systemlog--》mobile-->
+
+start，然后切换modem标签下，选择sd mode,再点击start.
+
+3 然后，等待log.
+
+4 待测完后，最后把\mtklog目录拷给我们。
+
+
+c、1、android问题的log一般都在/data/android/目录下，使用如下命令即可导出log
+
+adb pull /data/anr/traces.txt   d:/     =》意思是将手机上的traces.txt导出到电脑的d目录下
+
+但是也会有该命令失效的时候。你能adb shell ls /data/anr/  看到该文件，但是导出时会提示该文件不存在，原因没有去跟，但是导出的方式可以如下：
+
+1、adb shell 
+
+2、cat  /data/anr/xxx   >/mnt/sdcard/yy/zz.txt   
+
+3、exit
+
+4、adb pull /mnt/sdcard/yy/zz.txt  d:  ,即可将文件导出到了d盘。
+
+
+d、实时打印的主要有：logcat main，logcat radio，logcat events，tcpdump，还有高通平台的还会有QXDM日志
+    状态信息的有：adb shell dmesg，adb shell dumpstate，adb shell dumpsys，adb bugreport
+
+    讲解一下各自作用：
+
+    通过DDMS抓的其实跟用dos批处理抓的一样都是logcat的日志文件，ddms抓的通常是main缓存中的，
+    就是应用程序打印的日志文件。不过ddms好处在于能够实时看到带有颜色的，如果是用dos批处理只能重定向到文件，到抓完之后才能够看到，不是实时的。
+
+    adb logcat -b main -v time > app.log 打印应用程序的log
+
+    adb logcat -b radio -v time > radio.log 打印射频相关的log，SIM STK也会在里面，modem相关的ATcommand等，当然跟QXDM差的很远了。
+
+    adb logcat -b events -v time  打印系统事件的日志，比如触屏事件。。。
+
+    tcpdump 是很有用的，对于TCP/IP协议相关的都可以使用这个来抓，adb shell tcpdump -s 10000 -w /sdcard/capture.pcap，比如抓mms下载的时候的
+    UA profile，browser上网的时候，使用proxy的APN下载，streaming的相关内容包括UA profile等。
+
+    最后是高通平台的QXDM，不管是不是Android，只要使用高通芯片，都会对它很熟悉，当然了，不是高通的芯片就不用提它了。
+    这个不多讲，内容丰富，射频，电话，上网，...凡是高通提供的解决方案，这个都可以抓。
+
+    
+
+    状态信息：其实一个就够了，那就是bugreport（命令adb bugreport>bugreport.log)。里面包含有dmesg，dumpstate和dumpsys。
+    dmesg（命令adb shell dmesg > ldmesg_kernel.log）是kernel的log，凡是跟kernel相关的，比如driver出了问题
+   （相机，蓝牙，usb，启动，等等吧）。 dumpstate是系统状态信息，里面比较全，包括手机当前的内存信息、cpu信息、
+    logcat缓存，kernel缓存等等。adb shell dumpsys这个是关于系统service的内容都在这个里面，这个命令还有更详尽的用法
+    ，比如db shell dumpsys meminfo system是查看system这个process的内存信息。
+
+    adb logcat -s *:E  抓log   FATAL EXCEPTION: main
+
+
+异：
+1、编译命令
+ （1）高通：
+  首先进行环境配置
+  ./ build/envsetup.sh  
+  lunch   32
+  choosecombo 
+  
+  编译全部 
+  make -j8  （make clean）
+  编译模块
+   mmm packages/apps/Settings
+
+  （2）MTK
+  编译全部
+  ./mk project_name new 
+  ./mk project_name r
+  
+	编译android
+  ./mk r android
+  编译模块：
+  ./mk r dr Calendar  或者 ./makeMtk mm packages/apps/Calendar
+  
+  其他总结：
+		MTK平台，当修改一些代码时,使用什么编译命令可以最有效率
+		1: ./mk n(r) kernel; ./mk bootimage;当修改kernel相关代码时,要使用此命令,具体如下:
+		     alps/kernel/
+		     alps/mediatek/platform/mt65xx/kernel/
+		     alps/mediatek/source/kernel/
+		     alps/mediatek/customer/mt65xx/kernel/
+		     alps/mediatek/customer/common/kernel/
+		     alps/mediatek/customer/$porject_name$/kernel
+		     ......
+		2: ./mk n pl  当修改preloader相关代码时,要使用此命令,具体如下:
+		     alps/mediatek/platform/mt65xx/preloader/
+		     alps/mediatek/source/preloader/
+		     alps/mediatek/customer/mt65xx/preloader/
+		     alps/mediatek/customer/common/preloader/
+		     alps/mediatek/customer/$porject_name$/kernle
+		     ......
+		3: ./mk uboot  当修改uboot相关代码时,要使用此命令,具体如下:
+		     alps/mediatek/platform/mt65xx/uboot/
+		     alps/mediatek/source/uboot/
+		     alps/bootable/bootloader/uboot/
+		     alps/mediatek/customer/mt65xx/uboot/
+		     alps/mediatek/customer/commonoot/
+		     alps/mediatek/customer/$porject_name$/uboot/
+		      ......
+		4: ./mk systemimage 当修改system相关代码时使用此命令,具体如下:
+		      alps/frameworks/
+		      alps/packages/
+		      alpsendor/
+		      alps/hardware/
+		      alps/dalvik/
+		      alsp/external
+		      ...........
+		5: ./mk recoverimage  当修改recover相关代码时使用此命令,具体如下:
+		      alps/bootable/recovery/
+		      alps/mediatek/customer/$project_name$/recovery/
+		      ......
+		6: ./mk factoryimage:  当修改factory相关代码时使用此命令,具体如下:
+		      alps/mediatek/customer/$project_name$/factory/
+		      alps/mediatek/customer/common/factory/
+		      alps/mediatek/source/factory/
+		      ......
+		7: ./mk secroimage  当修改secro相关代码时使用此命令,具体如下:
+		      alps/mediatek/sourcecro/
+		      alps/mediatek/customer/$project_name$cro/
+		
+		2: ./mk n(r) k /module_path 当修改kernel module相关代码时,要使用此命令,具体文件参考如下:
+		alps/mediatek/platform/mt65xx/kernel/drivers/ccci/
+		alsp/mediatek/platform/mt65xx/gpu/
+		……
+		8、launcher3单编：第一次单编用./mk mma package/apps/Launcher3;
+		    之后即可使用./mk mm path命令进行编译
+		
+		9、全编 ./mk wingtech72_w_lca n
+		
+			编译512+256MB的项目:
+		
+			./mk wingtech72_w_lca n
+		
+			编译4GB+512MB的项目:
+		
+			./mk w97057t3 n       
+		
+		10、修改\alps\bootable\bootloader\lk\dev\logo\cu_fwvga要全编，不能只编译android模块
+		
+		你全编用这个命令：
+		
+		./mk project r
+		
+		不要用new   new是重新全编，r只是编你修改了的地方，40分钟可以编一次 
+  
+  
+  
+  
+项目中遇到的问题的总结
+  (1)git push 的时候报了下面的错误：
+	remote: Resolving deltas: 100% (6/6)
+	remote: Processing changes: refs: 1, done    
+	remote: 
+	remote: ERROR:  In commit 5ea64a53d1c80a7d4d8adc3f562c08dd35f09d0c
+	remote: ERROR:  committer email address caoyan@vm-ubuntu.(none)
+	remote: ERROR:  does not match your user account.
+	remote: ERROR:
+	remote: ERROR:  The following addresses are currently registered:
+	remote: ERROR:    caoyan@wingtech.com
+	remote: ERROR:
+	remote: ERROR:  To register an email address, please visit:
+	remote: ERROR:  http://192.168.19.225:8082/#/settings/contact
+	remote: 
+	remote: 
+	To ssh://caoyan@192.168.19.225:29418/6572kk/
+	 ! [remote rejected] HEAD -> refs/for/master (invalid committer)
+	error: failed to push some refs to 'ssh://caoyan@192.168.19.225:29418/6572kk/'
+	
+	解析：设置下user.name  和user.email；
+	      git config --global user.name caoyan；
+        git config --global user.email caoyan@wingtech.com；
+        配置了，提交可能还会报错，要git commit --amend一下，再git push。
+
+（2）SSH生成id_rsa, id_rsa.pub后，连接服务器却报错误：
+	Agent admitted failure to sign using the key.
+	Permission denied (publickey).
+	fatal: The remote end hung up unexpectedly
+	
+	解决方法：在当前用户下执行命令：
+	          ssh-add
+	          即可解决。
+	          
+（3）caoyan@vm-ubuntu:/YourPath/renew_6572kk/6572kk$ git pull的时候无法pull
+	error: Your local changes to 'alps/frameworks/base/core/java/android/view/View.java' would be overwritten by merge.  
+	Aborting.
+	Please, commit your changes or stash them before you can merge.
+
+	解析：如果View.java你并未改动，则覆盖他就好
+				git checkout -f alps/frameworks/base/core/java/android/view/View.java
+
+（4）refusing to pull 
+	解决办法：git status
+            git checkout 该文件或文件夹
+            
+（5）给APK签名的办法：
+		java -jar signapk.jar testkey.x509.pem testkey.pk8 update.apk update_signed.apk
+		signapk.jar:out/host/linux-x86/framework/signapk.jar
+		testkey.x509.pem testkey.pk8 :build\target\product\security\common\releasekey 
+
+（6）如何快速解bug心得:
+	1.提示"XXX"已停止运行
+		主要查看log分析是什么类型报错再看到代码的哪一行报错
+	2.概率性bug
+		先知道哪个模块报出的bug，再根据该模块的敏感字来搜索所有有关log，分析哪一行报的error，查看哪一行报错。
+		如手机突然关机，可以搜索敏感字"goodbye"
+	3.界面显示有关的bug
+	也是通过敏感字查找相应模块的代码界面，查看谁调用了该界面并对其进行分析具体的实现流程已便修改。
+	
+	总结：根据敏感字去快速寻找相应bug的代码看懂每一行代码具体是实现什么功能，看 log则根据bug的产生的现象得出敏感字如exception、fatal、shutting down等等去选择bug产生的原因
+				force close :main log  ---> fatal  exception
+		    						 event log ---> crash	
+		    					
