@@ -191,7 +191,14 @@ AP：
         >SIM Card:
             < UNSOL_SIM_PLUG_
 
+        >Signal:
+            mSignalStrength.getLevel
+
+        >Call:
+            < UNSOL_RESPONSE_CALL_STATE_CHANGED
+
         >AT CMD:
+            AT ?< \+ECSQ
             AT ?< \+(CSQ|ECSQ|HDRCSQ)
             (ESIMS|EUSIM|EMDSTATUS)                                     //sim card
             AT [<>].*(CLCC|CEND|CONN|CDV|ORIG|CCWA|CHV|RING|CLIP)       //1x call
@@ -213,6 +220,9 @@ AP：
         NETWORK_STATE_CHANGED_ACTION
 
     >main_log:
+        >Call:
+            Telephony: GsmConnection: Update state from ACTIVE to DISCONNECTED
+
         >Network:
             preferred_network_mode
             SignalClusterView: setNetworkType
